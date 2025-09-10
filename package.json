@@ -1,0 +1,35 @@
+{
+  "name": "remy",
+  "version": "1.0.0",
+  "description": "store specific recipe generator",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "server-dev": "nodemon --watch server server/index.js",
+    "client-dev": "webpack --watch",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "@mantine/core": "^8.3.0",
+    "@mantine/hooks": "^8.3.0",
+    "@phosphor-icons/react": "^2.1.10",
+    "axios": "^1.11.0",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "mysql2": "^3.14.5",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-react": "^7.27.1",
+    "babel-loader": "^10.0.0",
+    "css-loader": "^7.1.2",
+    "nodemon": "^3.1.10",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.101.3",
+    "webpack-cli": "^6.0.1"
+  }
+}
