@@ -34,7 +34,10 @@ function App() {
             onChatCreated={(id) => {
               setCurrentChatId(id);
               setActiveView('chat');
-              setChatsRefreshKey((k) => k + 1);
+              setChatsRefreshKey((k) => k + 1); // initial refresh on creation
+            }}
+            onChatsShouldRefresh={() => {
+              setChatsRefreshKey((k) => k + 1); // second refresh after assistant reply
             }}
           />
         ) : activeView === 'recipes' ? (

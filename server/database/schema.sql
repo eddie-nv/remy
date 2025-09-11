@@ -15,6 +15,24 @@ create table chats (
     updated_at timestamp default current_timestamp on update current_timestamp
 );
 
+create table recipes (
+    id int auto_increment primary key,
+    source_chat_id int null,
+    name varchar(255) not null,
+    description text null,
+    image_url varchar(255),
+    url varchar(255),
+    servings int null,
+    total_time_minutes int null,
+    tags_json text null,
+    notes text null,
+    created_at timestamp default current_timestamp,
+    updated_at timestamp default current_timestamp on update current_timestamp,
+    constraint fk_recipes_source_chat_id
+        foreign key (source_chat_id) references chats(id)
+        on delete set null
+);
+
 create table messages (
     id int auto_increment primary key,
     chat_id int not null,
@@ -25,20 +43,6 @@ create table messages (
     constraint fk_messages_chat_id
         foreign key (chat_id) references chats(id)
         on delete cascade
-);
-
-create table recipes (
-    id int auto_increment primary key,
-    source_chat_id int null,
-    name varchar(255) not null,
-    description text not null,
-    image_url varchar(255),
-    url varchar(255),
-    created_at timestamp default current_timestamp,
-    updated_at timestamp default current_timestamp on update current_timestamp,
-    constraint fk_recipes_source_chat_id
-        foreign key (source_chat_id) references chats(id)
-        on delete set null
 );
 
 create table ingredients (

@@ -76,7 +76,7 @@ export const RecipeCard = ({ recipe }) => {
     if (isSaving || isSaved) return;
     setIsSaving(true);
     try {
-      await axios.post('/recipes', { recipe });
+      await axios.post('/api/recipes', { recipe });
       setIsSaved(true);
     } catch (err) {
       console.error('Failed to save recipe', err);
