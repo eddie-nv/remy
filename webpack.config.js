@@ -9,15 +9,23 @@ module.exports = {
   },
   devtool: "source-map",
   resolve: {
-    extensions: [".js", ".jsx"],
+    extensions: [".js", ".jsx", ".mjs"],
   },
   module: {
     rules: [
       {
         test: /\.(js|jsx)$/,
+        include: path.resolve(__dirname, "client/src"),
         exclude: /node_modules/,
+        type: "javascript/esm",
         use: {
           loader: "babel-loader",
+          options: {
+            presets: [
+              ["@babel/preset-env", { targets: "defaults", modules: false }],
+              ["@babel/preset-react", { runtime: "automatic" }],
+            ],
+          },
         },
       },
       {

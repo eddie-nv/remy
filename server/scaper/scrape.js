@@ -22,7 +22,6 @@ const buildUrl = (base, pageNum) => {
 };
 
 const extractProductsOnPage = async (page, selector) => {
-  // Keep the "clean fragment" step in-page (clone + strip noisy tags), then parse.
   const { fragment, items } = await page.evaluate(sel => {
     const getText = el => el ? el.textContent.replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim() : null;
 
@@ -62,25 +61,45 @@ const extractProductsOnPage = async (page, selector) => {
   return { fragment, items };
 };
 
-const run = async () => {
+const isToday = (mtimeMs) => {
+  const d = new Date(mtimeMs);
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear() &&
+         d.getMonth() === now.getMonth() &&
+         d.getDate() === now.getDate();
+};
+
+const scrapeProducts = async (opts = {}) => {
   const base = 'https://www.traderjoes.com';
-  const selector = process.env.SELECTOR || '.ProductList_productList__list__3-dGs';
-  const startPage = Number(process.env.START_PAGE || 1);
-  const endPage = Number(process.env.END_PAGE || 123);
+  const selector = opts.selector || process.env.SELECTOR || '.ProductList_productList__list__3-dGs';
+  const startPage = Number(opts.startPage ?? process.env.START_PAGE ?? 1);
+  const endPage = Number(opts.endPage ?? process.env.END_PAGE ?? 123);
+  const force = Boolean(opts.force ?? (process.env.FORCE === '1'));
 
   const outDir = path.join(__dirname, 'output');
   const jsonTmp = path.join(outDir, 'products.json.tmp');
   const jsonFile = path.join(outDir, 'products.json');
   const userDataDir = path.join(__dirname, '.user-data');
 
-  const isHeadless = process.env.HEADLESS === '1';
-  const proxyServer = process.env.PROXY;
+  const isHeadless = Boolean(opts.headless ?? (process.env.HEADLESS === '1'));
+  const proxyServer = opts.proxy || process.env.PROXY;
   const userAgent =
+    opts.userAgent ||
     process.env.USER_AGENT ||
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
   await fs.ensureDir(outDir);
   await fs.ensureDir(userDataDir);
+
+  if (!force) {
+    try {
+      const stats = await fs.stat(jsonFile);
+      if (isToday(stats.mtimeMs)) {
+        const cached = await fs.readJson(jsonFile);
+        return cached;
+      }
+    } catch {}
+  }
 
   let context;
   try {
@@ -121,7 +140,6 @@ const run = async () => {
       'DNT': '1',
     });
 
-    // Warm-up origin once
     await page.goto(base, { waitUntil: 'domcontentloaded', timeout: 45000 });
     await delay(700);
 
@@ -142,9 +160,7 @@ const run = async () => {
 
           const { items } = await extractProductsOnPage(page, selector);
 
-          // If the page returned zero valid items, stop here.
           if (!items.length) {
-            console.log(`Page ${p} returned 0 items. Stopping at page ${p}.`);
             emptyReached = true;
             success = true;
             break;
@@ -152,7 +168,7 @@ const run = async () => {
 
           let added = 0;
           for (const it of items) {
-            const key = `${it.name}||${it.unit}`; // de-dupe across pages
+            const key = `${it.name}||${it.unit}`;
             if (!seen.has(key)) {
               seen.add(key);
               all.push(it);
@@ -160,11 +176,8 @@ const run = async () => {
             }
           }
 
-          console.log(`Page ${p} OK (added ${added}, total ${all.length})`);
           success = true;
         } catch (e) {
-          const msg = (e && e.message) || String(e);
-          console.warn(`Page ${p} attempt ${attempt} failed: ${msg}`);
           if (attempt >= 3) throw e;
           await delay(1500 + Math.random() * 1000);
         }
@@ -174,17 +187,22 @@ const run = async () => {
       await delay(400 + Math.random() * 400);
     }
 
-    // Atomic write of the final JSON only
     await fs.writeJson(jsonTmp, all, { spaces: 2 });
     await fs.move(jsonTmp, jsonFile, { overwrite: true });
 
-    console.log(`Saved products JSON to ${jsonFile} (${all.length} items)`);
-  } catch (err) {
-    console.error('Run failed:', err && err.stack ? err.stack : err);
-    process.exitCode = 1;
+    return all;
   } finally {
     if (context) await context.close();
   }
 };
 
-run();
+if (require.main === module) {
+  scrapeProducts().then(data => {
+    console.log(`Scraped ${data.length} products`);
+  }).catch(err => {
+    console.error(err && err.stack ? err.stack : err);
+    process.exit(1);
+  });
+}
+
+module.exports = { scrapeProducts };
