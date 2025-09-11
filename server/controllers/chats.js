@@ -1,6 +1,6 @@
 const { queryChats, createChat, touchChat } = require('../models/chats');
 const { getMessagesByChatId, createMessage } = require('../models/messages');
-const { generateAssistantReply } = require('./ai');
+const { generateRecipeJSON } = require('./ai');
 
 const getChats = async (req, res) => {
   const chats = await queryChats();
@@ -23,23 +23,19 @@ const postChat = async (req, res) => {
     const text = content.trim();
     const chatId = rawChatId ? Number(rawChatId) : null;
 
-    // Create or reuse chat, then insert the user message
     let targetChatId = chatId;
     if (!targetChatId) {
       const title = text.slice(0, 60) || 'New chat';
       targetChatId = await createChat(title);
     }
+
     await createMessage(targetChatId, 'user', text);
 
-    // Build context and ask OpenAI
-    const history = await getMessagesByChatId(targetChatId);
-    const aiText = await generateAssistantReply(history);
-
-    // Store assistant reply
+    // Generate recipe as stringified JSON and store as assistant message
+    const aiText = await generateRecipeJSON(text);
     await createMessage(targetChatId, 'assistant', aiText);
     await touchChat(targetChatId);
 
-    // Return full message list
     const messages = await getMessagesByChatId(targetChatId);
     const status = chatId ? 200 : 201;
     return res.status(status).json({ chatId: targetChatId, messages });
