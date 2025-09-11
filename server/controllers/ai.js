@@ -73,10 +73,41 @@ const generateRecipeJSON = async (prompt) => {
 
   const raw = completion.choices?.[0]?.message?.content ?? '{}';
   try {
-    // Normalize to a compact stringified JSON
     return JSON.stringify(JSON.parse(raw));
   } catch {
-    // If parsing fails for any reason, return the raw string
+    return String(raw);
+  }
+};
+
+// With scraped context: normalize the scraped recipe if present; fill missing fields as needed.
+const generateRecipeJSONWithContext = async (prompt, scraped) => {
+	console.log('generateRecipeJSONWithContext', prompt, scraped);
+  const contextText = scraped ? JSON.stringify(scraped) : '';
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    response_format: {
+      type: 'json_schema',
+      json_schema: { name: 'recipe_payload', schema: RECIPE_SCHEMA, strict: true },
+    },
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      {
+        role: 'user',
+        content:
+          `If SCRAPED_RECIPE is provided below, normalize it into the target schema. ` +
+          `Prefer scraped values; only infer when missing. Preserve the spirit of the content. ` +
+          `Keep textBefore and textAfter short and conversational.\n` +
+          `REQUEST: ${prompt}\n` +
+          `SCRAPED_RECIPE_JSON: ${contextText}`,
+      },
+    ],
+    temperature: 0.4,
+  });
+
+  const raw = completion.choices?.[0]?.message?.content ?? '{}';
+  try {
+    return JSON.stringify(JSON.parse(raw));
+  } catch {
     return String(raw);
   }
 };
@@ -95,4 +126,4 @@ const postAI = async (req, res) => {
   }
 };
 
-module.exports = { postAI, generateRecipeJSON };
+module.exports = { postAI, generateRecipeJSON, generateRecipeJSONWithContext };

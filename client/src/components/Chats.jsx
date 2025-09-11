@@ -35,12 +35,12 @@ const Chats = ({ onCreateChat = () => {}, onSelectChat = () => {}, currentChatId
         New Chat
       </Button>
       <Stack gap="xs">
-        <Button fullWidth variant="outline" onClick={() => onNavigate('recipes')} color="accent">
+        <Button fullWidth variant="outline" onClick={() => {onCreateChat(); onNavigate('recipes');}} color="accent">
             Recipes
         </Button>
-        <Button fullWidth variant="outline" onClick={() => onNavigate('shopping')} color="accent">
+        {/* <Button fullWidth variant="outline" onClick={() => onNavigate('shopping')} color="accent">
             Shopping List
-        </Button>
+        </Button> */}
       </Stack>
       <Stack gap="xs">
         <Text c="dimmed" size="sm">Chats</Text>

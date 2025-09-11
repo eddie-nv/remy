@@ -20,6 +20,7 @@ export const MessageItem = ({ message, messageId, context, onSendMessage, onRese
           else onSendMessage?.(content);
         }}
         value={message?.content ?? ''}
+        clearOnSubmit={false}
       />
     );
   }

@@ -4,7 +4,7 @@ import { Stack, Text, Badge, SimpleGrid, Center } from '@mantine/core';
 const SUGGESTIONS = [
   'Plan a 3-course dinner for 4 using seasonal ingredients.',
   'Suggest a weeknight meal under 30 minutes with chicken.',
-  'Create a vegetarian grocery list for 5 simple lunches.',
+  'Create 5 simple vegetarian lunches for the week.',
   'Turn these leftovers into a new dish: rice, beans, roasted veggies.',
 ];
 
@@ -12,9 +12,9 @@ const NewChat = ({ onSelectSuggestion = () => {} }) => {
   return (
     <Center w="100%" h="100%" >
       <Stack gap="md" h="100%" p="md" align="center" justify="center" style={{ maxWidth: 600, width: '100%' }}>
-        <Text fw={700} size="lg">Welcome to Remy</Text>
+        <Text fw={700} size="lg">Ask Remy! 🐭🥘</Text>
         <Text c="dimmed" size="sm" ta="center">
-          Ask for recipes, grocery lists, and cooking guidance. Try one of these:
+          Ask for recipes, reference a recipe, and cooking guidance. Try one of these:
         </Text>
         <SimpleGrid cols={2} spacing="xs" style={{ width: '100%' }}>
           {SUGGESTIONS.map((p) => (

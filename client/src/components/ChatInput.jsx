@@ -4,7 +4,7 @@ import { Textarea } from '@mantine/core';
 import { BottomToolbar } from './BottomToolbar';
 import { chatInputStyles } from '../styles/chatStyles';
 
-const ChatInput = ({ onSendMessage, value, onChange, isSending = false }) => {
+const ChatInput = ({ onSendMessage, value, onChange, isSending = false, clearOnSubmit = true }) => {
   const isControlled = typeof onChange === 'function';
   const [localInput, setLocalInput] = React.useState(value ?? '');
 
@@ -26,7 +26,7 @@ const ChatInput = ({ onSendMessage, value, onChange, isSending = false }) => {
     const trimmed = (input || '').trim();
     if (!trimmed) return;
     onSendMessage(trimmed);
-    setInput('');
+    if (clearOnSubmit) setInput('');
   };
 
   return (
