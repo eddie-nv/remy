@@ -9,11 +9,13 @@ const port = 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../client/dist')));
 app.use((req, res, next) => {
+  console.log('--------------------------------');
   console.log('req.method', req.method);
   console.log('req.url', req.url);
-  console.log('req.query', req.query);
-  console.log('req.params', req.params);
-  console.log('req.body', req.body);
+  if (Object.keys(req.query).length > 0) console.log('req.query', req.query);
+  if (Object.keys(req.params).length > 0) console.log('req.params', req.params);
+  if (req.body && Object.keys(req.body).length > 0) console.log('req.body', req.body);
+  console.log('--------------------------------');
   next();
 });
 

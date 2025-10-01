@@ -1,16 +1,31 @@
 const path = require("path");
 
+const isProd = process.env.NODE_ENV === "production";
+
 module.exports = {
-  mode: "development",
+  mode: isProd ? "production" : "development",
   entry: path.join(__dirname, "/client/src/index.jsx"),
   output: {
     path: path.join(__dirname, "/client/dist"),
     filename: "bundle.js",
   },
-  devtool: "source-map",
+  // Lighter maps in dev; disable in prod to speed and reduce memory
+  devtool: isProd ? false : "eval-cheap-module-source-map",
+  // Cache only in dev (prod is a one-off build)
+  cache: isProd ? false : { type: "filesystem" },
+  // Keep logs minimal
+  stats: "errors-warnings",
   resolve: {
     extensions: [".js", ".jsx", ".mjs"],
   },
+  // Watch tuning only applies in dev
+  watchOptions: isProd
+    ? undefined
+    : {
+        ignored: ["**/node_modules/**", "**/server/**", "**/client/dist/**"],
+        aggregateTimeout: 300,
+        // poll: 1000,
+      },
   module: {
     rules: [
       {
@@ -25,6 +40,8 @@ module.exports = {
               ["@babel/preset-env", { targets: "defaults", modules: false }],
               ["@babel/preset-react", { runtime: "automatic" }],
             ],
+            // Helpful in dev; harmless in prod but not required
+            cacheDirectory: !isProd,
           },
         },
       },
