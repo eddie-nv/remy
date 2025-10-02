@@ -4,4 +4,7 @@ client/dist/bundle.js.map
 .DS_Store
 .env
 .user-data
+server/scaper/.user-data
 output
+server/scaper/output
+ask-remy.pem

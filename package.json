@@ -7,9 +7,9 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "server-dev": "nodemon --watch server server/index.js",
-    "client-dev": "webpack --watch",
-    "build": "webpack --mode production"
+    "server-dev": "npx nodemon --watch server  server/index.js",
+    "client-dev": "npx webpack --watch",
+    "build": "npx webpack"
   },
   "dependencies": {
     "@mantine/core": "^8.3.0",
@@ -21,7 +21,6 @@
     "fs-extra": "^11.3.1",
     "mysql2": "^3.14.5",
     "openai": "^5.20.1",
-    "playwright": "^1.55.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
