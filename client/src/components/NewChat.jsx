@@ -5,7 +5,7 @@ const SUGGESTIONS = [
   'Plan a 3-course dinner for 4 using seasonal ingredients.',
   'Suggest a weeknight meal under 30 minutes with chicken.',
   'Create 5 simple vegetarian lunches for the week.',
-  'Turn these leftovers into a new dish: rice, beans, roasted veggies.',
+  'Give me the recipe from this site @https://www.allrecipes.com/recipe/23431/to-die-for-fettuccine-alfredo/',
 ];
 
 const NewChat = ({ onSelectSuggestion = () => {} }) => {
